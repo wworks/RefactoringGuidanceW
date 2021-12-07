@@ -43,7 +43,7 @@ public class defaultUiScript extends FilteringAtlasSmartViewScript {
 		
 		Q res = filteredSelection;
 		
-		// return the styled result for display
+		//  return the styled result for display
 		return new StyledResult(res, new Markup());
 	}
 	

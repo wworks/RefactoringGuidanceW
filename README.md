@@ -21,7 +21,7 @@ Copy RefactoringGuidanceWPlugin...jar to eclipse/dropins/ folder
 
 For JavaDoc see:
 
-https://wworks.github.io/RefactoringGuidanceW/RefactoringGuidanceW/doc/
+<https://wworks.github.io/RefactoringGuidanceW/RefactoringGuidanceW/doc/>
 
 
 

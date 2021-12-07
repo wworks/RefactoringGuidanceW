@@ -19,7 +19,9 @@ Make sure you have an Atlas license
 
 Copy RefactoringGuidanceWPlugin...jar to eclipse/dropins/ folder
 
-https://github.com/wworks/RefactoringGuidanceW/blob/main/RefactoringGuidanceW/doc/index.html
+For JavaDoc see:
+
+https://wworks.github.io/RefactoringGuidanceW/RefactoringGuidanceW/doc/
 
 
 

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.ensoftcorp.atlas.ui.smartViewScript">
+      <script
+            class="com.ensoftcorp.demo.CallGraphSmartView">
+      </script>
+      <script
+            class="com.ensoftcorp.demo.DataFlowWithinFunctionSmartView">
+      </script>
+      <script
+            class="com.ensoftcorp.demo.TypeOfSmartView">
+      </script>
+   </extension>
+   
+   
+  <extension
+      id="rg.mymarker"
+      point="org.eclipse.core.resources.markers" />
+   <extension
+      id="rg.myproblem"
+      name = "Refactoring Danger"
+      point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.problemmarker"/>
+      <super type="rg.mymarker"/>
+      <persistent value="true" />
+   </extension>
+   
+   
+      <extension
+         point="com.ensoftcorp.atlas.ui.smartViewScript">
+      <script
+            class="SmartViews.Query1">
+      </script>
+	  <script
+            class="SmartViews.Query2">
+      </script>
+      <script
+            class="SmartViews.Query3">
+      </script>
+      <script
+            class="SmartViews.Query4">
+      </script>
+      <script
+            class="SmartViews.Query5">
+      </script>
+      <script
+            class="SmartViews.Query6">
+      </script>
+      <script
+            class="SmartViews.Query7">
+      </script>
+       <script
+            class="SmartViews.Query8">
+      </script>
+      <script
+            class="SmartViews.Query9">
+      </script>
+      <script
+            class="SmartViews.Query10">
+      </script>
+      <script
+            class="SmartViews.Query11">
+      </script>
+      <script
+            class="SmartViews.Query11B">
+      </script>
+            <script
+            class="SmartViews.Query11C">
+      </script>
+      <script
+            class="SmartViews.Query12">
+      </script>
+       <script
+            class="SmartViews.Query12B">
+ 		</script>
+   </extension>
+   
+   
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="menuHandlers.AddParameterHazard"
+            id="RefactroingGuidanceW.AddParameterHazard"
+            name="Add Parameter">
+      </command>
+   </extension>
+   
+   
+             <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="menuHandlers.AddMethodAnalysis"
+            id="RefactroingGuidanceW.AddMethodAnalysis"
+            name="Add method">
+      </command>
+   </extension>
+   
+       <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="menuHandlers.RemoveMethodAnalysis"
+            id="RefactroingGuidanceW.RemoveMethodAnalysis"
+            name="Remove method">
+      </command>
+   </extension>
+   
+          <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="menuHandlers.MoveSegmentAnalysis"
+            id="RefactroingGuidanceW.MoveSegmentAnalysis"
+            name="ExtractMethod">
+      </command>
+   </extension>
+   
+
+   
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="RGW"
+               label="Refactoring analysis">
+            <command
+                  commandId="RefactroingGuidanceW.AddParameterHazard"
+                  label="Add parameter"
+                  style="push"
+                  tooltip="Do add parameter hazard analysis">
+            </command>
+            <command
+                  commandId="RefactroingGuidanceW.AddMethodAnalysis"
+                  label="Add method"
+                  style="push"
+                  tooltip="Do add method analysis in the selected class">
+            </command>
+            <command
+                  commandId="RefactroingGuidanceW.RemoveMethodAnalysis"
+                  label="Remove method"
+                  style="push"
+                  tooltip="Do remove method analysis for the selected method">
+            </command>
+            
+            <command
+                  commandId="RefactroingGuidanceW.MoveSegmentAnalysis"
+                  label="Move segment"
+                  style="push"
+                  tooltip="Do move segment analysis for the selected segment">
+            </command>
+            
+         </menu>
+      </menuContribution>
+   </extension>
+   
+   
+</plugin>

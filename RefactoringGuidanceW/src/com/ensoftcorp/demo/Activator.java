@@ -43,31 +43,31 @@ public class Activator extends AbstractUIPlugin {
 				
 		
 		//for some reason this cant run on SWT/ui thread
-Thread t1 = new Thread(
-				
-				new Runnable(){
-					@Override
-					public void run() {
+		Thread t1 = new Thread(
 						
-						try {
-							
-							RGUI = AtlasUI.createScriptView();
-							AtlasSmartViewScript s = new defaultUiScript();
-							RGUI.script(s);
-							RGUI.title("Refactoring Guidance");
-							
-						} catch (PartInitException e) {
-							// 
-							e.printStackTrace();
-						} 
-
+						new Runnable(){
+							@Override
+							public void run() {
+								
+								try {
+									
+									RGUI = AtlasUI.createScriptView();
+									AtlasSmartViewScript s = new defaultUiScript();
+									RGUI.script(s);
+									RGUI.title("Refactoring Guidance");
+									
+								} catch (PartInitException e) {
+									// 
+									e.printStackTrace();
+								} 
+		
+								
+								
+								
+							}
+						}
 						
-						
-						
-					}
-				}
-				
-				);
+						);
         t1.start();
 		
 		

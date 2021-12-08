@@ -75,7 +75,12 @@ public class MoveSegmentAnalysis extends AbstractHandler {
 		
 			
 			queries.Query10(segment).leaves().mark("Segment refers to this variable outside of the segment, moving the segment may accidentally rebind references to the wrong variable");
+			
+			queries.Query10MS(segment, containedMethod, W.universe().types("before")).mark("The segment uses this variable, but it also exists as a field in the destination type");
+			
 			queries.Query11D(segment, containedMethod).mark("This update has effects in the method after the segment, the result should be returned, to not lose these updates");
+			queries.Query11E(segment, containedMethod).mark("2This update has effects in the method after the segment, the result should be returned, to not lose these updates");
+			
 			queries.Query12(segment).mark("This return will be removed from the containing method, changing control flow and behavior" );
 			
 			

@@ -168,10 +168,28 @@ public W Query10(W segment) {
 	W dataflowInSegment = segment.induce(W.universe().edges(XCSG.DataFlow_Edge));
 	
 return	segment
-	.dataflow(TraversalDirection.REVERSE)
+		.predecessorsOn(W.universe().edges(XCSG.DataFlow_Edge))
+	//.dataflow(TraversalDirection.REVERSE)
 	.difference(dataflowInSegment);
 		
 	
+	
+}
+
+//opzet voor analyse of variablen gebonden raken na verplaatsen
+public W Query10MS(W segment, W containingMethod, W classDestination) {
+	//only dataflow nodes, not edges
+	W dataflowInSegment = segment.induce(W.universe().edges(XCSG.DataFlow_Edge));
+		
+	
+	return  segment
+	.predecessorsOn(W.universe().edges(XCSG.DataFlow_Edge))
+	.difference(dataflowInSegment)
+	.nodes(XCSG.Assignment, XCSG.Parameter,XCSG.Field)
+	.difference(classDestination.getFields()) //When moving to the same type, references to the same fields are not dangerous
+	.filterNodes((W s) -> classDestination.getFields().getNames().contains(s.getAssignmentNames().iterator().next())
+	//TODO: parameter names can hide fields
+	);
 	
 }
 
@@ -230,6 +248,21 @@ public W Query11D(W segment, W method) {
 	
 }
 
+
+public W Query11E(W segment, W method) {
+	return
+	segment.nodes(XCSG.Assignment)
+	.filterNodes(a -> a
+		.dataflow(TraversalDirection.FORWARD)
+		.difference(segment)
+		.intersection(method.contained())
+		.isNotEmpty()
+	
+	);//.nodeSize() == 1;
+
+
+	
+}
 
 public W Query11AF(W segment, W method) {
 			

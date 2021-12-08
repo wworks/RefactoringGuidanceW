@@ -1199,6 +1199,14 @@ public   class W  {
 		return this.difference(QLFunctionArrayToQLArray(this,fn));
 	}
 	
+	/*
+	 * Single argument version, otherwise the compiler can't determine the difference between selectFields() and selectFields(String)
+	 * https://coderedirect.com/questions/350971/the-target-type-of-this-expression-must-be-a-functional-interface
+	 */
+	public W differenceR(UnaryOperator<W>  fn ) {
+		return this.difference(fn.apply(this));
+	}
+	
 	/**
 	 * Yields the union of this graph and the given graphs. That is, the resulting graph's nodes are the union of all nodes, and likewise for edges.The given graphs are query expressions relative to the current query). 
 	 * 
@@ -1206,8 +1214,21 @@ public   class W  {
 	 * 
 	 * @return the union of all the given relative queries
 	 */
-	public W unionR(UnaryOperator<W> ... fn ) {
+	@SafeVarargs
+	public final W unionR(UnaryOperator<W> ... fn ) {
+		
+		
+		
 		return this.union(QLFunctionArrayToQLArray(this,fn));
+	}
+	
+	/*
+	 * Single argument version, otherwise the compiler can't determine the difference between selectFields() and selectFields(String)
+	 * https://coderedirect.com/questions/350971/the-target-type-of-this-expression-must-be-a-functional-interface
+	 */
+	public final W unionR(UnaryOperator<W> fn ) {
+			
+		return this.union(fn.apply(this));
 	}
 
 	
@@ -1221,6 +1242,14 @@ public   class W  {
 	 */
 	public W intersectionR(UnaryOperator<W> ... fn ) {
 		return this.intersection(QLFunctionArrayToQLArray(this,fn));
+	}
+	
+	/*
+	 * Single argument version, otherwise the compiler can't determine the difference between selectFields() and selectFields(String)
+	 * https://coderedirect.com/questions/350971/the-target-type-of-this-expression-must-be-a-functional-interface
+	 */
+	public W intersectionR(UnaryOperator<W> fn ) {
+		return this.intersection(fn.apply(this));
 	}
 
 	
@@ -1617,7 +1646,11 @@ public   class W  {
 	 * @return
 	 */
 	public W selectCallSitesWithSuper() {
-		return this.nodes(XCSG.CallSite).nodesStartingWith("super.");
+		//The callsite node only knows a this, so we string match its containing controlflowname, if it starts with "super."
+		//a semantic version might be possible by checking whether the this dataflows to a super method.
+		return this.nodes(XCSG.CallSite).parent().selectNodesStartingWith("super.").children().nodes(XCSG.CallSite);
+		
+
 		
 		
 	}
@@ -2271,6 +2304,14 @@ public   class W  {
 		this.getAttributeValuesAsMap(XCSG.name).forEach(n -> names.add((String)n ));
 		return names;
 		
+		
+	}
+	
+	public List<String> getAssignmentNames() {
+		List<String> names = new ArrayList<String>();
+		this.getAttributeValuesAsMap(XCSG.name).forEach(n -> names.add(((String)n).replace("=", "") ));
+		
+		return names;
 		
 	}
 	

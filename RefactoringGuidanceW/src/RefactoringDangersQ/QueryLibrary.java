@@ -1,6 +1,7 @@
 package RefactoringDangersQ;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ensoftcorp.atlas.core.db.graph.Edge;
@@ -424,6 +425,10 @@ public Q query10(Q segment) {
  	
  	
 }
+
+
+
+
 
 public Q query11(Q segment, Q method) {
 	//only dataflow inside the method is considered, so we set up a context/graph with elements inside the method, with all edges.

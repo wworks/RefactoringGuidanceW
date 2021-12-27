@@ -1909,11 +1909,13 @@ public   class W  {
 				.predecessorsOn(W.universe().edges(XCSG.DataFlow_Edge)) //all possible inputs for 'this' parameter
 				.nodes(XCSG.IdentityPass) 
 				.successorsOn(W.universe().edges(XCSG.IdentityPassedTo)); //from the identity input to the callsite.
-
+				
+				W invokedSignature = this.predecessorsOn(W.U().edges(XCSG.InvokedSignature));
+		
 				W staticCallSites = this
 				.predecessorsOn(W.universe().edges(XCSG.InvokedFunction));
 
-				W callSites = dynamicCallSites.union(staticCallSites);
+				W callSites = dynamicCallSites.union(staticCallSites,invokedSignature);
 
 				return callSites;
 				
@@ -1929,6 +1931,7 @@ public   class W  {
 	 * @return
 	 */
 	public W getCallers() {
+		//return this.predecessorsOn(W.U().edges(XCSG.Call));
 		return this.getCalledAt().getContainingFunctions().nodes(XCSG.Method);
 				
 		
@@ -1940,19 +1943,17 @@ public   class W  {
 	 * @return
 	 */
 	public W getCallees() {
-		return this.contained().successorsOn(W.U().edges(XCSG.InvokedSignature,XCSG.InvokedFunction));
+		W cs = this.contained().nodes(XCSG.StaticDispatchCallSite,XCSG.DynamicDispatchCallSite,XCSG.CallSite,XCSG.ObjectOrientedCallSite,XCSG.ObjectOrientedStaticCallSite,XCSG.SimpleCallSite);
 		
+		//something fishy with chained method calls not having a call edges or sth
+		W staticCS = cs.successorsOn(W.U().edges(XCSG.InvokedFunction));
+		W dynCs = cs.predecessorsOn(W.U().edges(XCSG.IdentityPassedTo)).successorsOn(W.U().edges(XCSG.DataFlow_Edge)).parent();
+		W dynSigCs = cs.successorsOn(W.U().edges(XCSG.InvokedSignature));
+		
+		return staticCS.union(dynCs, dynSigCs);
 	}
 	
-	/**
-	 * Gets all the method called by the given methods(See the difference between XCSG.Call and XCSG.InvokedFunction + XCSG.InvokedSignature)
-	 * 
-	 * @return
-	 */
-	public W getCallersConservative() {
-		return this.predecessorsOn(W.U().edges(XCSG.Call));
-		
-	}
+
 	
 	/**
 	 * Returns the methods the given elements are contained in

@@ -12,9 +12,11 @@ import com.ensoftcorp.atlas.core.db.graph.Edge;
 import com.ensoftcorp.atlas.core.db.graph.Graph;
 import com.ensoftcorp.atlas.core.db.graph.Node;
 import com.ensoftcorp.atlas.core.db.graph.NodeGraph;
+import com.ensoftcorp.atlas.core.db.graph.AddressLimitException;
 import com.ensoftcorp.atlas.core.db.set.AtlasHashSet;
 import com.ensoftcorp.atlas.core.db.set.AtlasSet;
 import com.ensoftcorp.atlas.core.index.common.SourceCorrespondence;
+import com.ensoftcorp.atlas.core.licensing.AtlasLicenseException;
 import com.ensoftcorp.atlas.core.query.Q;
 import com.ensoftcorp.atlas.core.query.Query;
 import com.ensoftcorp.atlas.core.script.Common;
@@ -24,6 +26,8 @@ import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import com.ensoftcorp.atlas.ui.selection.SelectionUtil;
 import com.ensoftcorp.atlas.ui.viewer.graph.DisplayUtil;
 import com.ensoftcorp.open.commons.utilities.FormattedSourceCorrespondence;
+import com.ensoftcorp.open.commons.utilities.MappingUtils;
+
 
 import WQL.W;
 

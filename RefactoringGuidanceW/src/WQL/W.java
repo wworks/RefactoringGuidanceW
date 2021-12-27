@@ -1897,13 +1897,27 @@ public   class W  {
 	
 	
 	/**
-	 * Gets all the callSites the given methods are called at
+	 * Gets all the callSites the given methods are (potentially, through dynamic binding, or definitely, when static) called at
 	 * 
 	 * 
 	 * @return
 	 */
 	public W getCalledAt() {
-		return this.predecessorsOn(W.U().edges(XCSG.InvokedSignature,XCSG.InvokedFunction));
+		W dynamicCallSites = this
+				.contained()
+				.nodes(XCSG.Identity) //implicit 'this' parameter
+				.predecessorsOn(W.universe().edges(XCSG.DataFlow_Edge)) //all possible inputs for 'this' parameter
+				.nodes(XCSG.IdentityPass) 
+				.successorsOn(W.universe().edges(XCSG.IdentityPassedTo)); //from the identity input to the callsite.
+
+				W staticCallSites = this
+				.predecessorsOn(W.universe().edges(XCSG.InvokedFunction));
+
+				W callSites = dynamicCallSites.union(staticCallSites);
+
+				return callSites;
+				
+		//return this.predecessorsOn(W.U().edges(XCSG.InvokedSignature,XCSG.InvokedFunction));
 				
 		
 	}
@@ -2326,6 +2340,8 @@ public   class W  {
 		return new W(SelectionUtil.getLastSelectionEvent().getSelection());
 		
 	}
+	
+	
 	
 	
 	

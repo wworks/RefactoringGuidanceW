@@ -62,7 +62,7 @@ public class RemoveMethodAnalysis extends AbstractHandler {
 		QueryLibraryWQL queries = new QueryLibraryWQL();
 		
 				
-		queries.Query5(methodDestination).mark("There still is a method call to the method to be removed");
+		queries.Query5(methodDestination).mark("There still is a (potential) method call to the method to be removed");
 		
 		queries.Query6(methodDestination).mark("This concrete method is overridden by the method to be removed, possible behaviour change when method is removed, because of dynamic binding");
 		

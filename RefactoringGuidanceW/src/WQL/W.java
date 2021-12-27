@@ -1938,7 +1938,7 @@ public   class W  {
 	}
 	
 	/**
-	 * Returns all methods called by the given methods
+	 * Returns all methods potentially called by the given methods
 	 * 
 	 * @return
 	 */

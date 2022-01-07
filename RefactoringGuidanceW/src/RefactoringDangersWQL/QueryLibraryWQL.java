@@ -60,7 +60,7 @@ public  class QueryLibraryWQL {
 	
 	public W Query2(W abstractClass, String methodName, List<String> parameterTypes ) {
 		W concreteSubClasses =  abstractClass
-								.getSubtypes()
+								.getSubtypesT()
 								.selectConcreteClasses();
 		
 		W classesWithMethod = concreteSubClasses						
@@ -93,7 +93,7 @@ public W Query3(W concreteClass, String visibility, String methodName, List<Stri
 public W Query4(W abstractOrConcreteClass, String visibility, String methodName, List<String> parameterTypes , W returnType) {
 	return 
 	abstractOrConcreteClass
-	.getSubtypes() //since input is abstract or concrete class, should not contain interfaces(but can)
+	.getSubtypesT() //since input is abstract or concrete class, should not contain interfaces(but can)
 	.getMethods()
 	.selectOverrideEquivalentMethods(visibility, methodName, parameterTypes, returnType);
 	

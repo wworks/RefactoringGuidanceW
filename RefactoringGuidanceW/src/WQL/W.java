@@ -857,7 +857,7 @@ public   class W  {
 	 * @param direction
 	 * @return
 	 */
-	public W conservativeCallGraph( CommonQueries.TraversalDirection direction) {
+	public W callGraph( CommonQueries.TraversalDirection direction) {
 		
 		return new W(CommonQueries.call(thisQ, direction));
 	}
@@ -2266,18 +2266,6 @@ public   class W  {
 	}
 	
 	
-	
-
-	
-
-
-
-	
-	
-
-	
-	
-
 	
 	public W selectNodesStartingWith(String... name) {
 		Q res = Query.empty();

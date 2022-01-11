@@ -25,7 +25,7 @@ import RefactoringDangersQ.QueryLibrary;
 
 import com.ensoftcorp.open.commons.ui.components.*;
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 3
  */
 public class Query3 extends FilteringAtlasSmartViewScript {
 
@@ -67,7 +67,7 @@ public class Query3 extends FilteringAtlasSmartViewScript {
 			}
 			
 			QueryLibrary QL = new QueryLibrary();
-			Q overriden = QL.query3B(filteredSelection, visibility, methodName, parameterTypes,Query.universe().types(returnType));
+			Q overriden = QL.query3(filteredSelection, visibility, methodName, parameterTypes,Query.universe().types(returnType));
 			res = overriden;
 			
 		} 

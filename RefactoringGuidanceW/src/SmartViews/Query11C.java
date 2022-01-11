@@ -26,7 +26,7 @@ import RefactoringDangersWQL.QueryLibraryWQL;
 import WQL.W;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 11C
  */
 public class Query11C extends FilteringAtlasSmartViewScript {
 

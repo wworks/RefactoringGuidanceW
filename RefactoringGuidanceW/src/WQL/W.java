@@ -129,11 +129,6 @@ public   class W  {
 	}
 
 	
-
-	
-
-	
-	
 	/* 
 	 * Ou queries
 	 * 
@@ -172,8 +167,6 @@ public   class W  {
 		
 		return new W(Query.empty());
 	}
-	
-
 	
 	
 
@@ -850,7 +843,7 @@ public   class W  {
 	 * */
 	
 	
-	//this = origin
+
 	/**
 	 * Gets the call graph for the nodes in this. Traverses CALL edges in the given direction(s) from the origin. Includes the origin nodes.
 	 * 
@@ -862,19 +855,7 @@ public   class W  {
 		return new W(CommonQueries.call(thisQ, direction));
 	}
 	
-//	/**
-//	 * Produces a call graph. Traverses CALL edges in the given direction(s) from the origin. Uses only the given context for the traversal. The origin nodes are included in the result
-//	 * 
-//	 *  
-//	 * 
-//	 * @param context
-//	 * @param direction
-//	 * @return
-//	 */
-//	public QL getCallGraph(QL context, CommonQueries.TraversalDirection direction) {
-//		
-//		return new QL(CommonQueries.call(context.Q() ,thisQ, direction));
-//	}
+
 	
 //	/**
 //	 * Returns the return nodes for the given methods.
@@ -1004,10 +985,7 @@ public   class W  {
 	 * 
 	 * */
 	
-//	public QL getDirectCallers() {
-//		
-//		return new QL(com.ensoftcorp.open.commons.analysis.CommonQueries.callers(thisQ));
-//	}
+
 	
 	public W nodesAttributeValuesEndingWith(String attribute, String suffix) {
 		return new W(com.ensoftcorp.open.commons.analysis.CommonQueries.nodesAttributeValuesEndingWith(thisQ, attribute, suffix));
@@ -1392,19 +1370,13 @@ public   class W  {
 	
 	
 
-	
-//	public QL getReturnTypes() {
-//		return this
-//				.union(QL.universe().nodes(XCSG.Type))
-//				.induce(QL.universe().edges(XCSG.Returns))
-//				.forwardStep(this)
-//				.nodes(XCSG.Type);
-//		//TODO overbodige stappen volgens mij
-//	//this.forwardStepOn(QL.universe().edges(XCSG.Returns).nodes(XCSG.Type)	
-//	}
-	
-	
-	public W methodsWithCovariantReturnTypesF( W type ) {
+
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private W methodsWithCovariantReturnTypesF( W type ) {
 		return 
 		this
 		//add returns edges and their nodes
@@ -1422,7 +1394,7 @@ public   class W  {
 						
 	}
 	
-	public W methodsEquallyOrMoreVisible(String visibility) {
+	private W methodsEquallyOrMoreVisible(String visibility) {
 		
 		
 		// private<default(package)<protected< public
@@ -1580,11 +1552,8 @@ public   class W  {
 	 */
 	public W selectMethodsWithSignature(String methodName, List<String> parameterTypes) {
 		
-		return this
-				
-				.getMethods().methods(methodName)
-								
-				.selectMethodsWithParameters(parameterTypes); 
+		return this.methods(methodName)								
+				   .selectMethodsWithParameters(parameterTypes); 
 
 	}
 	
@@ -1611,19 +1580,19 @@ public   class W  {
 	 * @return
 	 */
 	public W selectOverrideEquivalentMethods(String visiblity, String methodName, List<String> parameterTypes , W returnType ) {
-		
+			
 		return
 		//Same name
 		this
 		.methods(methodName)
 		
-		//Rule #1:Only inherited methods can be overridden.(public or protected or default)
-		.nodes(XCSG.publicVisibility,XCSG.protectedPackageVisibility,XCSG.packageVisibility)
-		
-		//Rule #2:Final and static methods cannot be overridden.
-		//Rule #8:Constructors cannot be overridden.
-		.nodes(XCSG.InstanceMethod)
-		.difference(this.nodes(XCSG.Java.finalMethod))
+//		//Rule #1:Only inherited methods can be overridden.(public or protected or default)
+//		.nodes(XCSG.publicVisibility,XCSG.protectedPackageVisibility,XCSG.packageVisibility)
+//		
+//		//Rule #2:Final and static methods cannot be overridden.
+//		//Rule #8:Constructors cannot be overridden.
+//		.nodes(XCSG.InstanceMethod)
+//		.difference(this.nodes(XCSG.Java.finalMethod))
 		
 		//Rule #4: The overriding method must have same return type (or subtype).
 		 .methodsWithCovariantReturnTypesF(returnType)
@@ -1637,6 +1606,11 @@ public   class W  {
 		
 		//Rule #3: The overriding method must have same argument list.
 		.selectMethodsWithParameters(parameterTypes);	
+	}
+	
+	private boolean isPrivate(String visibility) {
+		return visibility.equals("Private");
+		
 	}
 	
 	
@@ -1717,15 +1691,7 @@ public   class W  {
 		
 	}
 	
-//	/**
-//	 * Gets the interfaces implemented by the given classes, and all interfaces these interfaces extend.
-//	 * 
-//	 * @return
-//	 */
-//	public QL getImplementsTransitive() {
-//		return this.getImplements().descendantsOn(QL.universe().edges(XCSG.Java.Extends));
-//		
-//	}
+
 	
 	/**
 	 * Gets the direct supertypes of the given types.
@@ -1798,6 +1764,18 @@ public   class W  {
 		return this.predecessorsOn(W.universe().edges(XCSG.Java.Extends)).nodes(XCSG.Java.Class);
 		
 	}
+	
+
+	/**
+	 * Gets the first /concrete/ subclasses of a class, useful for checking implementations of abstract methods
+	 * 
+	 * @return
+	 */
+	public W getFirstConcreteSubclasses() {
+		return this.getSubclassesT().selectAbstractClasses().getSubclasses().selectConcreteClasses().union(this.getSubclasses().selectConcreteClasses());
+		
+	}
+
 	
 	/**
 	 * Gets the direct and indirect subclasses oh the given nodes
@@ -1919,9 +1897,7 @@ public   class W  {
 
 				return callSites;
 				
-		//return this.predecessorsOn(W.U().edges(XCSG.InvokedSignature,XCSG.InvokedFunction));
-				
-		
+			
 	}
 	
 	
@@ -1945,7 +1921,7 @@ public   class W  {
 	public W getCallees() {
 		W cs = this.contained().nodes(XCSG.StaticDispatchCallSite,XCSG.DynamicDispatchCallSite,XCSG.CallSite,XCSG.ObjectOrientedCallSite,XCSG.ObjectOrientedStaticCallSite,XCSG.SimpleCallSite);
 		
-		//something fishy with chained method calls not having a call edges or sth
+		//something fishy with chained method calls not having a call edges or sth. Also possible that is due to not remapping workspace, so then call edges can be used.
 		W staticCS = cs.successorsOn(W.U().edges(XCSG.InvokedFunction));
 		W dynCs = cs.predecessorsOn(W.U().edges(XCSG.IdentityPassedTo)).successorsOn(W.U().edges(XCSG.DataFlow_Edge)).parent();
 		W dynSigCs = cs.successorsOn(W.U().edges(XCSG.InvokedSignature));
@@ -1976,6 +1952,11 @@ public   class W  {
 		
 	}
 	
+	/**
+	 * Returns the values for the given attribute key, for the nodes in this, as a stream
+	 * @param attribute
+	 * @return
+	 */
 	public Stream<Object> getAttributeValuesAsMap(String attribute) {
 		
 		return StreamSupport.stream(this.eval().nodes().spliterator(), true).map(e ->e.getAttr(attribute));
@@ -2266,7 +2247,11 @@ public   class W  {
 	}
 	
 	
-	
+	/**
+	 * Selects nodes that start with one of the given names.
+	 * @param name
+	 * @return
+	 */
 	public W selectNodesStartingWith(String... name) {
 		Q res = Query.empty();
 		
@@ -2310,6 +2295,11 @@ public   class W  {
 		
 	}
 	
+	/**
+	 * Returns the name of assignments without the equals sign, i.e. the variable name
+	 * 
+	 * @return
+	 */
 	public List<String> getAssignmentNames() {
 		List<String> names = new ArrayList<String>();
 		this.getAttributeValuesAsMap(XCSG.name).forEach(n -> names.add(((String)n).replace("=", "") ));

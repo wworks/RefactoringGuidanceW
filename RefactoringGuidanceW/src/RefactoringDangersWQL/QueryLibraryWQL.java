@@ -34,38 +34,38 @@ import WQL.W;
 
 public  class QueryLibraryWQL {
 	
-	public class methodName {
-		private String methodName;
-
-		public methodName(String methodName) {
-			this.methodName = methodName;
-			
-		}
-		
-		public String getMethodName() {
-			return this.methodName;
-			
-		}
-	
-		
-	}
-	
-	
+	/**
+	 * Detect if there is a method with a given signature in a class or interface(RD: (i)), return that method
+	 * 
+	 * @param type
+	 * @param methodName
+	 * @param parameterTypes
+	 * @return
+	 */
 	public W Query1(W type, String methodName, List<String> parameterTypes) {
 		
-		return type.selectMethodsWithSignature(methodName, parameterTypes);
+		return type.getMethods().selectMethodsWithSignature(methodName, parameterTypes);
 			
 	}
 	
 	
-	public W Query2(W abstractClass, String methodName, List<String> parameterTypes ) {
+	/**
+	 *  Detect whether there are concrete subclasses of an abstract class which have no implementation for the given abstract method , return all these subclasses that have no implementation .
+
+	 * @param abstractClass
+	 * @param visibility
+	 * @param methodName
+	 * @param parameterTypes
+	 * @param returnType
+	 * @return
+	 */
+	public W Query2(W abstractClass, String visibility, String methodName, List<String> parameterTypes, W returnType ) {
 		W concreteSubClasses =  abstractClass
-								.getSubtypesT()
-								.selectConcreteClasses();
+								.getFirstConcreteSubclasses();
 		
 		W classesWithMethod = concreteSubClasses						
 								.getMethods()
-								.selectMethodsWithSignature(methodName, parameterTypes)
+								.selectOverrideEquivalentMethods(visibility, methodName, parameterTypes, returnType)
 								.parent();
 		
 		return concreteSubClasses.difference(classesWithMethod);
@@ -76,7 +76,16 @@ public  class QueryLibraryWQL {
 	
 	
 	
-	
+/**
+ * Detect whether there exists an override equivalent concrete method w.r.t. the method to add exists in a(n) (in) direct ( abstract ) superclass of the class to add it to , and return all these methods in superclasses which will be overriden when adding the method to this class.
+ * 	
+ * @param concreteClass
+ * @param visibility
+ * @param methodName
+ * @param parameterTypes
+ * @param returnType
+ * @return
+ */
 public W Query3(W concreteClass, String visibility, String methodName, List<String> parameterTypes , W returnType) {
 	
 	return 
@@ -90,6 +99,16 @@ public W Query3(W concreteClass, String visibility, String methodName, List<Stri
 	
 }
 
+
+/**
+ * Detect whether there exist an override equivalent method w.r.t. the method to add in a(n) (in) direct ( abstract ) subclass , and return all these methods which will override the method to add  
+ * @param abstractOrConcreteClass
+ * @param visibility
+ * @param methodName
+ * @param parameterTypes
+ * @param returnType
+ * @return
+ */
 public W Query4(W abstractOrConcreteClass, String visibility, String methodName, List<String> parameterTypes , W returnType) {
 	return 
 	abstractOrConcreteClass
@@ -100,28 +119,35 @@ public W Query4(W abstractOrConcreteClass, String visibility, String methodName,
 	
 }
 
+/**
+ * Detect whether there is a method call to the method to be removed , and return all method calls to the method
+ * 
+ * @param methods
+ * @return
+ */
 public W Query5(W methods) {
 	return methods.getCalledAt();
 	
 }
 
 
-public Q getCallSites(Q methods) {
-	//https://ensoftatlas.com/wiki/XCSG:IdentityPassedTo
-	
-		Q callSites = Query.universe().edges(XCSG.InvokedFunction, XCSG.InvokedSignature ).reverse(methods);
-		return callSites;
-	//Q callGraph = Query.universe().edges(XCSG.Call );
-	//Q callers = callGraph.reverseStep(methods);
-	//return callers;
-	
-}
-
+/**
+ * Detect whether the method to be removed overrides a concrete method in a(n) (in) direct superclass and return all those methods that are overriden
+ * 
+ * @param method
+ * @return
+ */
 public W Query6(W method) {
 	return	method.getOverridesT().selectConcreteMethods();
 		
 }
 
+/**
+ * Detect whether the method is concrete and overridden by another method (in a subclass ), and return all such methods which override it
+ * 
+ * @param method
+ * @return
+ */
 public W Query7(W method) {
 	//only consider concrete methods
  
@@ -133,14 +159,18 @@ public W Query7(W method) {
 	
 }
 
-
+/**
+ * Detect whether the method to be removed is concrete and implements an abstract method in its direct abstract superclass , and return that method
+ * @param method
+ * @return
+ */
 public W Query8(W method) {
 	method = method.selectConcreteMethods();
 	
 	return method.getOverrides().intersection(
 			method
 			.parent()
-			.getSupertypes()
+			.getSupertypesT()
 			.selectAbstractClasses()
 			.getMethods()
 			.selectAbstractMethods()
@@ -152,12 +182,18 @@ public W Query8(W method) {
 	
 }
 
+/**
+ * Detect whether the method to be removed is abstract and is implemented in a concrete direct subclass , and return all these methods which override the ( abstract ) method to be removed in any direct concrete subclass
+ * 
+ * @param method
+ * @return
+ */
 public W Query9(W method) {
 	method = method.selectAbstractMethods();
 			
 	return	method
 		.parent()
-		.getSubtypes()
+		.getSubtypesT()
 		.selectConcreteClasses()
 		.getMethods()
 		.intersection(
@@ -167,6 +203,12 @@ public W Query9(W method) {
 
 }
 
+/**
+ * Detect whether the segment to add refers to declarations (of local variables , parameters , fields ) outside of the segment , and return all these identifiers / variable references which are not bound within the segment / refer to local variables / parameters / fields outside the segment . 
+ * 
+ * @param segment
+ * @return
+ */
 public W Query10(W segment) {
 	//only dataflow nodes, not edges
 	W dataflowInSegment = segment.induce(W.universe().edges(XCSG.DataFlow_Edge));
@@ -197,7 +239,13 @@ public W Query10MS(W segment, W containingMethod, W classDestination) {
 	
 }
 
-
+/**
+ * Detect whether the segment updates variables that are later used in the method that the segment is removed from , and return all local variables and parameters in the source method used later in the remaining segment which are modified by the extracted segmented .
+ * 
+ * @param segment
+ * @param method
+ * @return
+ */
 public W Query11(W segment, W method) {
 			
 	//only dataflow nodes, not edges
@@ -231,7 +279,16 @@ public W Query11(W segment, W method) {
 	
 	}
 
-
+/**
+ * Detect whether the segment updates variables that are later used in the method that
+the segment is removed from , and return all local variables and parameters in the
+source method used later in the remaining segment which are modified by the
+extracted segmented .
+ * 
+ * @param segment
+ * @param method
+ * @return
+ */
 public W Query11D(W segment, W method) {
 
 	W dataflowInSegment = segment.induce(W.universe().edgesTaggedWithAll(XCSG.DataFlow_Edge, XCSG.LocalDataFlow));
@@ -253,7 +310,7 @@ public W Query11D(W segment, W method) {
 }
 
 
-public W Query11E(W segment, W method) {
+private W Query11E(W segment, W method) {
 	return
 	segment.nodes(XCSG.Assignment)
 	.filterNodes(a -> a
@@ -268,7 +325,7 @@ public W Query11E(W segment, W method) {
 	
 }
 
-public W Query11AF(W segment, W method) {
+private W Query11AF(W segment, W method) {
 			
 	//only dataflow nodes, not edges
 	W dataflowInMethod = W.universe().edges(XCSG.DataFlow_Edge).intersection(method.contained());
@@ -291,6 +348,11 @@ public W Query11AF(W segment, W method) {
 	
 	}
 
+/**
+ * Detect whether there is a return in the segment to be removed , return all these returns
+ * @param segment
+ * @return
+ */
 public W Query12(W segment) {
 	return segment.nodes(XCSG.controlFlowExitPoint);
 	

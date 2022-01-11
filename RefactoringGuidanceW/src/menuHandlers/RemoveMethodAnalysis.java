@@ -33,17 +33,16 @@ import RefactoringDangersWQL.QueryLibraryWQL;
 
 
 
-
+/**
+ * 
+ * Handles a click on the menu item for the move segment analysis. Gathers user input and runs analyses.
+ *
+ */
 public class RemoveMethodAnalysis extends AbstractHandler {
-	
-	
+		
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
 		W.clearAllMarkers();
-
-		
 		
 		W selection = W.toW(SelectionUtil.getLastSelectionEvent().getSelection().eval());
 		
@@ -53,14 +52,12 @@ public class RemoveMethodAnalysis extends AbstractHandler {
 		if(methods.nodeSize() == 1) {
 			methodDestination = methods;
 			
-			
 		} else {
 			DisplayUtils.showMessage("Incorrect selection, please select a single method");
 			return null;
 			
 		}
 		QueryLibraryWQL queries = new QueryLibraryWQL();
-		
 				
 		queries.Query5(methodDestination).mark("There still is a (potential) method call to the method to be removed");
 		
@@ -72,11 +69,7 @@ public class RemoveMethodAnalysis extends AbstractHandler {
 		
 		queries.Query9(methodDestination).mark("This is an implementation of the abstract method to be removed, dynamic binding will break if the implemented method is removed");
 		
-						
-		
 		return null;
-		
-		
 		
 	}
 	

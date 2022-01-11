@@ -20,8 +20,20 @@ import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import com.ensoftcorp.atlas.ui.viewer.graph.DisplayUtil;
 import com.ensoftcorp.open.commons.utilities.FormattedSourceCorrespondence;
 
+
+/**
+ * Contains queries implemented using stock Atlas.
+ * 
+ * 
+ */
 public  class QueryLibrary {
 	
+	/**
+	 * 
+	 * Input class example.
+	 * 
+	 *
+	 */
 	public class methodName {
 		private String methodName;
 
@@ -38,6 +50,15 @@ public  class QueryLibrary {
 		
 	}
 	
+	
+	/**
+	 * Query 1. Detect if there is a method with a given signature in a class or interface, return that method
+	 * 
+	 * @param type 
+	 * @param methodName
+	 * @param parameterTypes
+	 * @return 
+	 */
 	public Q methodWithSignatureInType2(Q type, String methodName, List<String> parameterTypes) {
 		//get the methods with the supplied name in a type with the supplied name.
 		Q methodsWithNameInType = type.contained().methods(methodName);
@@ -50,39 +71,18 @@ public  class QueryLibrary {
 			
 	}
 	
-	
-public Q concreteSubClassesWithoutImplementation2(Q abstractClass, String methodName, List<String> parameterTypes ) {
-		
-		//typeHierarchy(Q origin, CommonQueries.TraversalDirection direction)
-		//	Produces a type hierarchy.
-		//reverse means 'down'
-	Q typeh = CommonQueries.typeHierarchy(abstractClass, CommonQueries.TraversalDirection.REVERSE);
 
-	//exclude abstractclasses from type hierarchy
-		//difference(Q... expr)
-		//	Select the current graph, excluding the given graphs.
-	Q csubc = typeh.difference(typeh.nodes( XCSG.Java.AbstractClass));
-	
-	//all methods of all concrete sub classes of abstractClass
-	Q methods = CommonQueries.methodsOf(csubc);
-								
-	
-	//methods(String methodName)
-	//	Selects methods of a given name, regardless of signature.
-	Q methodsWithName = methods.methods(methodName);
-	
-	//collect all methods with same signature as input, from all methods of concrete sub classes.
-	Q matchingMethods = methodsWithParametersB(methodsWithName ,  parameterTypes );
-	
-	//subtract from all concrete subclasses those classes which have a method with the signature already.
-		//parent() gives the parent of a node, along the contains edge. A method is contained by a class.
-	Q classesWithoutMethod = csubc.difference(matchingMethods.parent());
-	
-	return classesWithoutMethod; 
-
-}
-
-public Q concreteSubClassesWithoutImplementation3(Q abstractClass, String visibility, String methodName, List<String> parameterTypes, Q returnType ) {
+/**
+ * Detect whether there are concrete subclasses of an abstract class which have no implementation for the given abstract method, return all these subclasses that have no implementation.
+ * 
+ * @param abstractClass
+ * @param visibility
+ * @param methodName
+ * @param parameterTypes
+ * @param returnType
+ * @return
+ */
+public Q query2(Q abstractClass, String visibility, String methodName, List<String> parameterTypes, Q returnType ) {
 	
 	//typeHierarchy(Q origin, CommonQueries.TraversalDirection direction)
 	//	Produces a type hierarchy.
@@ -109,36 +109,18 @@ return classesWithoutMethod;
 
 }
 	
-
-public Q query3(Q concreteClass, String visibility, String methodName, List<String> parameterTypes , String returnType) {
-	
-	//get superclasses of input class
-	Q typeh = CommonQueries.typeHierarchy(concreteClass, TraversalDirection.FORWARD);
-		//exclude interfaces
-	Q superclasses = typeh.difference(Query.universe().nodes(XCSG.Java.Interface),concreteClass);
-	//TODO remove given nodes
-	
-	
-	//get instance methods of superclasses
-	//	since constrcutors and static cannot be overriden only look at instance methods
-	Q instanceMethods = superclasses.contained().nodes(XCSG.Method, XCSG.InstanceMethod);
-	//?overideEquivalent doet dit ook al
-	
-	//exclude abstract methods
-	Q concreteMethods = instanceMethods.difference(instanceMethods.nodes(XCSG.abstractMethod));
-	
-	//convert type name to type in model.
-	Q returnTypeQ = Query.universe().types(returnType);
-
-	//select those methods that are override equivalent w.r.t to the input method
-	Q overrideEquivalentMethods = overrideEquivalentMethods(visibility, methodName, parameterTypes,returnTypeQ , concreteMethods);
-			
-
-	return overrideEquivalentMethods;
-}
-
-
-public Q query3B(Q concreteClass, String visibility, String methodName, List<String> parameterTypes , Q returnType) {
+/**
+ * 
+ * Detect whether there exists an override equivalent concrete method w.r.t. the method to add in a(n) (in)direct (abstract) superclass of the class to add it to, and return all these methods in superclasses which will be overriden when adding the method to this class .
+ * 
+ * @param concreteClass
+ * @param visibility
+ * @param methodName
+ * @param parameterTypes
+ * @param returnType
+ * @return
+ */
+public Q query3(Q concreteClass, String visibility, String methodName, List<String> parameterTypes , Q returnType) {
 	
 	//get superclasses of input class
 	Q typeh = CommonQueries.typeHierarchy(concreteClass, TraversalDirection.FORWARD);
@@ -161,7 +143,16 @@ public Q query3B(Q concreteClass, String visibility, String methodName, List<Str
 	return overrideEquivalentMethods;
 }
 
-
+/**
+ * Detect whether there exist an override equivalent method w.r.t. the method to add in a(n) (in)direct (abstract) subclass, and return all these methods which will override the method to add (RD: (iv)).
+ * 
+ * @param abstractOrConcreteClass
+ * @param visibility
+ * @param methodName
+ * @param parameterTypes
+ * @param returnType
+ * @return
+ */
 public Q query4(Q abstractOrConcreteClass, String visibility, String methodName, List<String> parameterTypes , Q returnType) {
 		//get subclasses of input class
 		Q typeh = CommonQueries.typeHierarchy(abstractOrConcreteClass, TraversalDirection.REVERSE).difference(abstractOrConcreteClass);
@@ -175,19 +166,38 @@ public Q query4(Q abstractOrConcreteClass, String visibility, String methodName,
 		return overrideEquivalentMethods;
 }
 
-public Q getCallSites(Q methods) {
-	//https://ensoftatlas.com/wiki/XCSG:IdentityPassedTo
+/**
+ * Detect whether there is amethod call to the method to be removed, and return all potential method calls to the method (RD: (v)).
+ * 
+ * @param methods
+ * @return
+ */
+public Q query5(Q methods) {
 	
-		Q callSites = Query.universe().edges(XCSG.InvokedFunction, XCSG.InvokedSignature ).reverse(methods);
-		return callSites;
-	//Q callGraph = Query.universe().edges(XCSG.Call );
-	//Q callers = callGraph.reverseStep(methods);
-	//return callers;
-	
+	Q dynamicCallSites = methods
+			 .contained ()
+			 .nodes ( XCSG . Identity ) // implicit ’this ’ parameter
+			 .predecessorsOn ( Query . universe (). edges ( XCSG . DataFlow_Edge )) // all possible inputs for ’this ’ parameter
+			 .nodes (XCSG.IdentityPass)
+			 .successorsOn( Query . universe (). edges ( XCSG . IdentityPassedTo )); // from theidentity input to the callsite .
+			
+			Q staticCallSites = methods.predecessorsOn ( Query . universe (). edges ( XCSG . InvokedFunction ));
+			
+			Q callSites = dynamicCallSites . union ( staticCallSites );
+			
+			return callSites ;
+		
 }
 
 
+/**
+ * Detection: detect whether the method to be removed overrides a concrete method in a(n) (in)direct superclass and return all those methods that are overriden.
+ * 
+ * @param method
+ * @return
+ */
 public Q query6(Q method) {
+// possible input checking:	
 //	Q filteredInput =  method.nodesTaggedWithAll(XCSG.Method,XCSG.abstractMethod);
 //	if(CommonQueries.nodeSize(filteredInput) != 1) {
 //		throw new IllegalArgumentException("query expects exactly one abstract method");
@@ -230,8 +240,14 @@ public Q query6B(Q methods) {
 			return	connectOnly.difference(connectOnly.roots()).retainNodes();
 }
 	
+/**
+ * Detect whether the method is concrete and overridden by another method (in a subclass), and return all such methods which override it (RD: (vii)).
+ * 
+ * @param method
+ * @return
 
-public Q query7(Q method) throws IllegalArgumentException{
+ */
+public Q query7(Q method) {
 	//only consider concrete methods
  method = method.difference(Query.universe().nodes(XCSG.abstractMethod));
  
@@ -243,7 +259,12 @@ public Q query7(Q method) throws IllegalArgumentException{
 		 	
 }
 
-
+/**
+ * Shorter but harder to understand  version of query 8. Detect whether the method to be removed implements an abstract method in its direct abstract superclass, and return that method.
+ * 
+ * @param method
+ * @return
+ */
 public Q query8(Q method) {
 	//exclude abstract methods
 	 method = method.difference(Query.universe().nodes(XCSG.abstractMethod));
@@ -265,6 +286,12 @@ public Q query8(Q method) {
 	
 }
 
+/**
+ * Detect whether the method to be removed implements an abstract method in its direct abstract superclass, and return that method.
+ * 
+ * @param method
+ * @return
+ */
 public Q query8B(Q method) {
 	//exclude abstract methods
 	 method = method.difference(Query.universe().nodes(XCSG.abstractMethod));
@@ -287,6 +314,12 @@ public Q query8B(Q method) {
 	
 }
 
+/**
+ * Detect whether the method to be removed is abstract and is implemented in a concrete direct subclass, and return all these methods which override the (abstract) method to be removed in any direct concrete subclass (RD: (ix))).
+ * 
+ * @param method
+ * @return
+ */
 public Q query9(Q method) {
 	//exclude abstract methods
 	 method = method.difference(Query.universe().nodes(XCSG.abstractMethod));
@@ -309,14 +342,15 @@ public Q query9(Q method) {
 	 Q implementations = methodOverrides.intersection(subclassMethods);
 		 
 	 return implementations;
-	 
-	 
-	 
-	 
-	 
 	
 }
 
+/**
+ * Query 8 using directImplementationGraph, see thesis.
+ * 
+ * @param methods
+ * @return
+ */
 public Q query8C(Q methods) {
 	//exclude abstract methods
 	 methods = methods.difference(Query.universe().nodes(XCSG.abstractMethod));
@@ -330,6 +364,12 @@ public Q query8C(Q methods) {
 
 }
 
+/**
+ * Query 9 using directImplementationGraph, see thesis.
+ * 
+ * @param methods
+ * @return
+ */
 public Q query9B(Q methods) {
 	methods = methods.nodes(XCSG.abstractMethod);
 	
@@ -343,6 +383,13 @@ public Q query9B(Q methods) {
 	
 }
 
+
+/**
+ * Parametric version of query 9, see thesis.
+ * 
+ * @param methods
+ * @return
+ */
 public Q query9C(Q methods) {
 	methods = methods.nodes(XCSG.abstractMethod);
 	
@@ -354,6 +401,13 @@ public Q query9C(Q methods) {
 	
 }
 
+/**
+ * Allows for to query the direct implementation graph where the direction can be given as a parameter
+ * 
+ * @param methods
+ * @param traversalDirection
+ * @return
+ */
 public Q parametricImplementations(Q methods, TraversalDirection traversalDirection) {
 	Q dig = directImplementationsGraph();
 	
@@ -362,6 +416,11 @@ public Q parametricImplementations(Q methods, TraversalDirection traversalDirect
 	return res.difference(methods).nodes(XCSG.Method);
 }
 
+/**
+ * Returns a graph containing all the direct implementations, the graph contains: abstract class, concrete class, extends, abstract method en concerete method, overrides
+ * 
+ * @return
+ */
 public Q directImplementationsGraph() {
 	//only abstract methods
 	 Q abstractMethods = Query.universe().nodes(XCSG.abstractMethod);
@@ -400,21 +459,13 @@ public Q directImplementationsGraph() {
 	
 }
 
-//TODO not relevant to thesis
-public Q query10X(Q segment) {
-	Q dataflow = Query.universe().nodes(XCSG.DataFlow_Node, XCSG.Variable, XCSG.Assignment).induce(Query.universe().edges(XCSG.DataFlow_Edge));
-	Q dataflowToSegment = dataflow.reverse(segment);
-	Q assignments = dataflowToSegment.nodes(XCSG.Assignment);
-	//parent of assignment = control flow node, parent of control flow node = method
-	Q methods = assignments.parent().parent();
-	
-	//see if 
-	Q assignmentsOutsideOfSegment = methods.difference(segment.parent().parent());
-	
-	return assignmentsOutsideOfSegment;
-	
-}
 
+/**
+ * Detect whether the segment to move refers to declarations(of local variables, parameters, fields) outside of the segment, and return all these identifiers/variable references which are not bound within the segment/ refer to local variables/parameters/fields outside the segment. Possibly additional information can be needed for the advice, e.g. the type of these variable references(they determine the type of the parameters which can be added to fix it) (RD: (x)) 
+ *  
+ * @param segment
+ * @return
+ */
 public Q query10(Q segment) {
  	Q reverseDataflow = CommonQueries.data(segment, CommonQueries.TraversalDirection.REVERSE);
  	
@@ -422,14 +473,18 @@ public Q query10(Q segment) {
  	
  	return reverseDataflow.difference(segmentDataflow).nodes(XCSG.Parameter,XCSG.Field, XCSG.Initialization);//.forwardStepOn(Query.universe().edges(XCSG.TypeOf));
  	
- 	
- 	
 }
 
 
 
 
-
+/**
+ * Part of analysis 11. Returns the  dataflow affected by the assignements in the segment to move that will be lost
+ * 
+ * @param segment
+ * @param method
+ * @return
+ */
 public Q query11(Q segment, Q method) {
 	//only dataflow inside the method is considered, so we set up a context/graph with elements inside the method, with all edges.
 	Q methodContext = method.contained().induce(Query.universe().edges(XCSG.Edge));
@@ -448,17 +503,18 @@ public Q query11(Q segment, Q method) {
 	
 	Q affectedDataflowRemainingSegment = dataflowFromSegment.difference(dataflowInSegment);
 	
-	//return dataflowFromSegment.between(segment.nodes(XCSG.Assignment), affectedDataflowRemainingSegment);//.roots().forwardStepOn(Query.universe().edges(XCSG.TypeOf));
 	
 	return affectedDataflowRemainingSegment;
-	//return methodContext.edges(XCSG.LocalDataFlow).reverse(affectedDataflowRemainingSegment).nodes(XCSG.Initialization);
-	//return dataflowToSegment.union(segment.nodes(XCSG.Assignment).union(segment.nodes(XCSG.Assignment)).contained().induce(methodContext.edges(XCSG.LocalDataFlow))).union(affectedDataflowRemainingSegment);
-	//return dataflowToSegment.union(segment.nodes(XCSG.Assignment).union(segment.nodes(XCSG.Assignment)).contained().induce(methodContext.edges(XCSG.LocalDataFlow))).union(affectedDataflowRemainingSegment).reverse(affectedDataflowRemainingSegment);
 	
-	//return dataflowToAndFromSegent.difference(dataflowInSegment);
-	//return methodContext.edges(XCSG.LocalDataFlow).reverse(affectedDataflowRemainingSegment);
 }
 
+/**
+ * Part of analysis 11. Returns the updates that cause trouble if removed
+ *  
+ * @param segment
+ * @param method
+ * @return
+ */
 public Q query11B(Q segment, Q method) {
 	//only dataflow inside the method is considered, so we set up a context/graph with elements inside the method, with all edges.
 	Q methodContext = method.contained().induce(Query.universe().edges(XCSG.Edge));
@@ -481,15 +537,14 @@ public Q query11B(Q segment, Q method) {
 	
 	return dataflowFromSegment.between(segment.nodes(XCSG.Assignment), affectedDataflowRemainingSegment).difference(affectedDataflowRemainingSegment);//.roots();//.forwardStepOn(Query.universe().edges(XCSG.TypeOf));
 	
-	//return affectedDataflowRemainingSegment;
-	//return methodContext.edges(XCSG.LocalDataFlow).reverse(affectedDataflowRemainingSegment).nodes(XCSG.Initialization);
-	//return dataflowToSegment.union(segment.nodes(XCSG.Assignment).union(segment.nodes(XCSG.Assignment)).contained().induce(methodContext.edges(XCSG.LocalDataFlow))).union(affectedDataflowRemainingSegment);
-	//return dataflowToSegment.union(segment.nodes(XCSG.Assignment).union(segment.nodes(XCSG.Assignment)).contained().induce(methodContext.edges(XCSG.LocalDataFlow))).union(affectedDataflowRemainingSegment).reverse(affectedDataflowRemainingSegment);
-	
-	//return dataflowToAndFromSegent.difference(dataflowInSegment);
-	//return methodContext.edges(XCSG.LocalDataFlow).reverse(affectedDataflowRemainingSegment);
 }
 
+/**
+ * Detect whether there is a return in the segment to be removed, return all these returns.
+ * 
+ * @param selection
+ * @return
+ */
 public Q query12(Q selection) {
 
 	return selection.nodes(XCSG.controlFlowExitPoint);
@@ -497,74 +552,14 @@ public Q query12(Q selection) {
 	
 }
 
-
-public Q query12B(Q selection) {
-
-	Q exits = selection.nodes(XCSG.controlFlowExitPoint);
-	
-	Q cfgraph = selection.induce(Query.universe().edges(XCSG.ControlFlow_Edge));
-	
-	AtlasSet<Node> ifs = new AtlasHashSet<Node>();
-	
-	//for each return reverse on the control flow graph to the first if statement.
-	for (Node exit : exits.eval().nodes()) {
-		Q front = Common.toQ(exit);
-		boolean ifFound = false;
-		
-		while(!ifFound)	{
-			for (Node f : front.eval().nodes()) {
-				if (f.taggedWith(XCSG.ControlFlowIfCondition)) {
-					//check if this if statement 'governs' the return, ie there is not other way to reach this return other than through the if branch
-					boolean isGoverning = com.ensoftcorp.open.commons.analysis.CommonQueries.isGoverningBranch(f, exit);
-					if(isGoverning && !ifFound) {
-						ifFound = true;
-						ifs.add(f);
-						
-					}
-				}
-			}
-			
-			front = cfgraph.reverseStep(front).difference(front);
-
-			if (CommonQueries.isEmpty(front)) {
-				ifFound = true;
-			}
-		}
-	}
-	return Common.toQ(ifs);
-	
-}
-
-
-public Q getMethodSegment(int offsetStart, int length, Q method) {
-	
-	Q children = method.children();
-	
-	AtlasSet<Node> childrenNodes = children.eval().nodes();
-	
-	AtlasSet<Node> nodesInSegment = new AtlasHashSet<Node>();
-	
-	for(Node node : childrenNodes) {
-		com.ensoftcorp.atlas.core.index.common.SourceCorrespondence sc =  (SourceCorrespondence) node.getAttr(XCSG.sourceCorrespondence);
-		if (sc != null) {
-			int nodeOffset = sc.offset;
-			int nodeLength = sc.length;
-		
-			System.out.println("selection from: " + offsetStart + " length: " + length + " Q from " + nodeOffset + " to: " + nodeLength);
-			
-			if(nodeOffset >= offsetStart && nodeOffset <= (offsetStart + length) ) { //TODO length
-				nodesInSegment.add(node);
-				
-			}
-			
-		}
-	
-	}
-	
-	return Common.toQ(nodesInSegment);
-	
-}
-
+/**
+ * Gets the nodes in the method within the given file offset and length. Allows partial selection.
+ * 
+ * @param offsetStart
+ * @param length
+ * @param method
+ * @return
+ */
 public Q getMethodSegmentB(int offsetStart, int length, Q method) {
 	
 	Q children = method.contained();
@@ -590,40 +585,15 @@ public Q getMethodSegmentB(int offsetStart, int length, Q method) {
 	return Common.toQ(nodesInSegment);
 }
 	
-public Q methodsWithParametersB( Q methodsToMatchFrom, List<String> parameterTypesSource ) {
-	//convert Q to Nodes
-	AtlasSet<Node> methodNodes = methodsToMatchFrom.eval().nodes();
-	
-	//prepare result set of nodes
-	AtlasSet<Node> result = new AtlasHashSet<Node>();	
-	
-	for(Node methodG : methodNodes) {
-		Q methodQ = Common.toQ(methodG);
-		boolean sameNumberOfParameters = parameterTypesSource.size() ==  CommonQueries.nodeSize(CommonQueries.methodParameter(methodQ));
-		
-		boolean sameTypesOfParameters = true;
-		
-		for(int index = 0;index<parameterTypesSource.size();index++) {
-			Q parameterAtIndex = CommonQueries.methodParameter(methodQ, index);
-			
-			Q typeOfParameter = Query.universe().forwardStep(parameterAtIndex).nodes(XCSG.Type);
-
-			if( CommonQueries.isEmpty(typeOfParameter.selectNode(XCSG.name, parameterTypesSource.get(index)))) {
-				sameTypesOfParameters = false;
-				
-			}
-			
-		}
-		
-		if (sameNumberOfParameters && sameTypesOfParameters) {
-			result.add(methodG);
-		}
-		
-	}
-	return Common.toQ(result);
-}
 
 
+/**
+ * Returns from the given methods, methods with the given list of parameter types, by looping through the given methods one by one.
+ * 
+ * @param methodsToMatchFrom
+ * @param parameterTypesSource
+ * @return
+ */
 	public Q methodsWithParameters( Q methodsToMatchFrom, List<String> parameterTypesSource ) {
 		//convert Q to Nodes
 		AtlasSet<Node> methodNodes = methodsToMatchFrom.eval().nodes();
@@ -681,6 +651,14 @@ public Q methodsWithParametersB( Q methodsToMatchFrom, List<String> parameterTyp
 		
 	}
 	
+	
+	/**
+	 * Returns from the given methods, methods with the given list of parameter types, using mostly querying techniques instead of looping through methods. This is similar to the Atlas tutorial https://ensoftatlas.com/wiki/Discovering_Valid_Java_Main_Methods
+	 * 
+	 * @param methodsToMatchFrom
+	 * @param parameterTypesSource
+	 * @return
+	 */
 	public Q methodsWithParametersC(Q methodsToMatchFrom, List<String> parameterTypesSource ) {
 		int numOfParameters = parameterTypesSource.size();
 		
@@ -713,12 +691,14 @@ public Q methodsWithParametersB( Q methodsToMatchFrom, List<String> parameterTyp
 		
 		return methodsWithRightParamTypes;
 		
-		
 	}
 	
-	
-
-	
+	/**
+	 * Returns from contextmethods those methods that are equally or more visible than the given method
+	 * @param method
+	 * @param contextMethods
+	 * @return
+	 */
 	public Q methodsEquallyOrMoreVisible(Q method, Q contextMethods) {
 		//assume 1 method
 		
@@ -748,8 +728,15 @@ public Q methodsWithParametersB( Q methodsToMatchFrom, List<String> parameterTyp
 	
 	}
 	
+	/**
+	 * Returns from contextmethods those methods that are equally or more visible than the given visibility.
+	 * 
+	 * @param visibility
+	 * @param contextMethods
+	 * @return
+	 */
 	public Q methodsEquallyOrMoreVisible(String visibility, Q contextMethods) {
-		//assume 1 method
+		
 		
 		// private<default(package)<protected< public
 		boolean isPublic = visibility.equals("Public");
@@ -777,39 +764,38 @@ public Q methodsWithParametersB( Q methodsToMatchFrom, List<String> parameterTyp
 	
 	}
 	
+	/**
+	 * Selects from the methods in methodsContext those methods that have a return type covariant to the given type.
+	 * 
+	 * @param type
+	 * @param methodsContext
+	 * @return
+	 */
 	public Q covariantReturnTypes( Q type, Q methodsContext ) {
 		Q typeh = CommonQueries.typeHierarchy(type, TraversalDirection.REVERSE);
-		//returngraph is hele programma, dus reverse step op void geeft alle methoden die void oplevern
-		//Q returnGraph =  Query.universe().nodes(XCSG.Type, XCSG.Method).induce(Query.universe().edges(XCSG.Returns));
+		
 		Q returnGraph =  methodsContext.union(Query.universe().nodes(XCSG.Type)).induce(Query.universe().edges(XCSG.Returns));
 		
-		
-		Q retTypes =returnGraph.forwardStep(methodsContext).nodes(XCSG.Type);
+		Q retTypes = returnGraph.forwardStep(methodsContext).nodes(XCSG.Type);
 		
 		Q subTypesOfReturnTypes = retTypes.intersection(typeh);
 		
-
-		
-		
-		//method filter is nodig anders kan het type zelf erbij blijven zitten(het originele type zit in de typehierarchy, en in de return graph)
-		
-		// oh nee toch niet bijv als een methode Bear als return type heeft, maar Bear is ook gewoon een type.
-		//reversestep geeft ook de given nodes mee, dus ook het type
-		
 		Q methodsWithCovariantReturnTypes = returnGraph.reverseStep( subTypesOfReturnTypes).nodes(XCSG.Method);
-		
-		
-		
+
 		return methodsWithCovariantReturnTypes;
 		
-				
-		//universe.nodes(XCSG.Type, XCSG.Method).induce(universe.edges(XCSG.Returns))
-		//show(res7.forward(universe.methods("doSound")))
-
-
-				
 	}
 	
+	/**
+	 * Selects from methodsContext those methods that are override-equivalent to the given method description.
+	 * 
+	 * @param visiblity
+	 * @param methodName
+	 * @param parameterTypes
+	 * @param returnType
+	 * @param methodsContext
+	 * @return
+	 */
 	public Q overrideEquivalentMethods(String visiblity, String methodName, List<String> parameterTypes , Q returnType, Q methodsContext ) {
 		System.out.println("start override");
 		

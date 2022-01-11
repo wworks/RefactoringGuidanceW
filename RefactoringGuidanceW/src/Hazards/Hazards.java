@@ -7,41 +7,25 @@ import com.ensoftcorp.atlas.core.script.CommonQueries.TraversalDirection;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import WQL.W;
 
+
+/**
+ * WQL queries for the 'hazardous code patterns' by Evert Verduin
+ * Grouped per microstep. 
+ * Not all have been implemented, most have not have been checked for correctness whether they detect the right thing.
+ * 
+ * @author Wernsen
+ *
+ */
 public class Hazards {
-
-
-	
-	
-	private void temp(W iClassOfMethod2Add, String methodName, List<String> parameterTypes) {
-		
-		W CallSubToSiginSupNoKeyAM= iClassOfMethod2Add
-				.getSuperclasses()
-				.getMethods()
-				.selectMethodsWithSignature(methodName, parameterTypes)
-				.getCalledAt()
-				.differenceR(s->s.selectCallSitesWithSuper())
-				.getContainingFunctions()
-				.parent()
-				.intersection(
-					iClassOfMethod2Add
-					.getSubclasses()
-				);
-
-	}
-	
 	
 	
 	
 	public static void doAddClassAnalysis(W packageDestination, String newClassName) {
 		W.clearAllMarkers();
-		
-	
-		
+			
 		//AC-H1
 		packageDestination.getClasses(newClassName).mark("Class is already defined.");
-		
-		
-		
+				
 		
 	}
 	

@@ -24,13 +24,13 @@ import com.ensoftcorp.open.commons.ui.utilities.DisplayUtils;
 import RefactoringDangersQ.QueryLibrary;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 12
  */
 public class Query12 extends FilteringAtlasSmartViewScript {
 
 	@Override
 	public String getTitle() {
-		return "Query 12: Conditional returns";
+		return "Query 12: Returns in segment";
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class Query12 extends FilteringAtlasSmartViewScript {
 			}
 			
 			Q segment = QL.getMethodSegmentB(texts.getOffset(), texts.getLength(), methods );
-			res = QL.query12B(segment);
+			res = QL.query12(segment);
 			
 			
 			

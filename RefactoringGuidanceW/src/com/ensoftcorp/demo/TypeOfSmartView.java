@@ -12,6 +12,8 @@ import com.ensoftcorp.atlas.ui.scripts.selections.FilteringAtlasSmartViewScript;
 import com.ensoftcorp.atlas.ui.selection.event.IAtlasSelectionEvent;
 
 /**
+ * Stock example Atlas SmartView 
+ * 
  * For a selected node, displays the immediate type and the basis of that type.
  */
 public class TypeOfSmartView extends FilteringAtlasSmartViewScript {

@@ -26,17 +26,18 @@ import RefactoringDangersWQL.QueryLibraryWQL;
 
 
 
-
+/**
+ * 
+ * Handles a click on the menu item for the add method analysis. Gathers user input and runs analyses.
+ *
+ */
 public class AddMethodAnalysis extends AbstractHandler {
 	
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		W.clearAllMarkers();
-		
-
-		
-	
+			
 		W selection = W.toW(SelectionUtil.getLastSelectionEvent().getSelection().eval());
 		
 		W classes = selection.nodes(XCSG.Java.Class,XCSG.Java.Interface);
@@ -62,7 +63,6 @@ public class AddMethodAnalysis extends AbstractHandler {
 			
 			if(!parameters.trim().isEmpty()) {
 				 parameterTypes = Arrays.asList(parameters.split(",", 0));
-				
 			}
 			
 			W returnTypeW = W.U().types(returnType);
@@ -72,30 +72,20 @@ public class AddMethodAnalysis extends AbstractHandler {
 			queries.Query1(classDestination, methodName, parameterTypes).mark("Method signature already present");
 			
 			
-			
-			queries.Query2(classDestination.selectAbstractClasses(), methodName, parameterTypes).mark("Concrete subclass does not have an implementation for the given method signature");
+			if(!visibility.equals( "Private")) {
+				queries.Query2(classDestination.selectAbstractClasses(), visibility, methodName, parameterTypes, returnTypeW).mark("Concrete subclass does not have an implementation for the given method signature");
 
-			queries.Query3(classDestination.selectConcreteClasses(), visibility, methodName, parameterTypes,  returnTypeW).mark("Method will override this method, possibly changing behaviour");
+				queries.Query3(classDestination.selectConcreteClasses(), visibility, methodName, parameterTypes,  returnTypeW).mark("Method will override this method, possibly changing behaviour");
 			
-			queries.Query4(classDestination.selectClasses(), visibility, methodName, parameterTypes, returnTypeW).mark("Method will be overridden by this method");
-			
-			
+				queries.Query4(classDestination.selectClasses(), visibility, methodName, parameterTypes, returnTypeW).mark("Method will be overridden by this method");
+			}
 		} else {
 			
 			DisplayUtils.showMessage("Incorrect input, please provide required details");
 		}
-		
-		
-		
-		
-		
-						
-		
+			
 		return null;
-		
-		
-		
-		
+			
 	}
 	
 

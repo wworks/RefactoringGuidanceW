@@ -20,7 +20,7 @@ import com.ensoftcorp.open.commons.ui.utilities.DisplayUtils;
 import RefactoringDangersQ.QueryLibrary;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 7
  */
 public class Query7 extends FilteringAtlasSmartViewScript {
 

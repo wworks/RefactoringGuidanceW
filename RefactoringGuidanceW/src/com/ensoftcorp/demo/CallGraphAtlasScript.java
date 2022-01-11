@@ -12,6 +12,11 @@ import com.ensoftcorp.atlas.core.script.Common;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import com.ensoftcorp.atlas.ui.viewer.graph.SaveUtil;
 
+/**
+ * Stock example Atlas script
+ * 
+ *
+ */
 public class CallGraphAtlasScript {
 
 	public static void create() {

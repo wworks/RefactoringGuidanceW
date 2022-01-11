@@ -8,6 +8,8 @@ import com.ensoftcorp.atlas.ui.scripts.selections.FilteringAtlasSmartViewScript;
 import com.ensoftcorp.atlas.ui.selection.event.IAtlasSelectionEvent;
 
 /**
+ * Stock example Atlas SmartView 
+ * 
  * For a selected C structure node, displays the call relation between the functions 
  * accessing instances of the selected C structure type.
  */

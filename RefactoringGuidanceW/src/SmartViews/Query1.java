@@ -18,7 +18,7 @@ import com.ensoftcorp.open.commons.ui.utilities.DisplayUtils;
 import RefactoringDangersQ.QueryLibrary;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 1.
  */
 public class Query1 extends FilteringAtlasSmartViewScript {
 

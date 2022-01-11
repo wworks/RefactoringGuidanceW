@@ -20,7 +20,7 @@ import com.ensoftcorp.open.commons.ui.utilities.DisplayUtils;
 import RefactoringDangersQ.QueryLibrary;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 2
  */
 public class Query2 extends FilteringAtlasSmartViewScript {
 
@@ -68,7 +68,7 @@ public class Query2 extends FilteringAtlasSmartViewScript {
 			
 			QueryLibrary QL = new QueryLibrary();
 			//Q cscwi = QL.concreteSubClassesWithoutImplementation2(filteredSelection, methodName, parameterTypes);
-			Q cscwi = QL.concreteSubClassesWithoutImplementation3(filteredSelection, visibility , methodName, parameterTypes , Query.universe().types(returnType));
+			Q cscwi = QL.query2(filteredSelection, visibility , methodName, parameterTypes , Query.universe().types(returnType));
 			
 			
 			m.set(cscwi, MarkupProperty.NODE_BACKGROUND_COLOR, Color.RED);

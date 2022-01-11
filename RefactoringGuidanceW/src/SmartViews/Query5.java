@@ -20,13 +20,13 @@ import com.ensoftcorp.open.commons.ui.utilities.DisplayUtils;
 import RefactoringDangersQ.QueryLibrary;
 
 /**
- * For a selected node, displays the immediate type and the basis of that type.
+ * SmartView for query 5
  */
 public class Query5 extends FilteringAtlasSmartViewScript {
 
 	@Override
 	public String getTitle() {
-		return "Query 5: Callsites for the selected method";
+		return "Query 5: Potential callsites for the selected method";
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class Query5 extends FilteringAtlasSmartViewScript {
 	public StyledResult selectionChanged(IAtlasSelectionEvent input, Q filteredSelection) {
 						
 		QueryLibrary QL = new QueryLibrary();
-		Q res = QL.getCallSites(filteredSelection);
+		Q res = QL.query5(filteredSelection);
 		
 		// return the styled result for display
 		return new StyledResult(res, new Markup());

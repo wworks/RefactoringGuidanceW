@@ -14,6 +14,8 @@ import com.ensoftcorp.atlas.ui.scripts.selections.FilteringAtlasSmartViewScript;
 import com.ensoftcorp.atlas.ui.selection.event.IAtlasSelectionEvent;
 
 /**
+ * Stock example Atlas SmartView 
+ * 
  * For a selected function, displays the data flow graph embedded in the control flow graph.
  * The control flow edge back to the start of the loop is highlighted in blue.
  */

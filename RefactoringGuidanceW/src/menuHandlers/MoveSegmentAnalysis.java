@@ -31,7 +31,11 @@ import RefactoringDangersWQL.QueryLibraryWQL;
 
 
 
-
+/**
+ * 
+ * Handles a click on the menu item for the move segment analysis. Gathers user input and runs analyses.
+ *
+ */
 public class MoveSegmentAnalysis extends AbstractHandler {
 	
 	
@@ -41,7 +45,6 @@ public class MoveSegmentAnalysis extends AbstractHandler {
 		W.clearAllMarkers();
 
 		QueryLibraryWQL queries = new QueryLibraryWQL();
-		
 		
 		// get selected text to find offset and length of selection
 		ISelection sel = SelectionUtil.getLastSelectionEvent().getWorkbenchSelection();
@@ -55,11 +58,7 @@ public class MoveSegmentAnalysis extends AbstractHandler {
 				return null;
 			}
 			
-			
-			
-			
 			W segment = queries.getMethodSegmentB(texts.getOffset(), texts.getLength(), W.toW(methods.eval()) );
-			
 						
 			W containedMethod = segment.getContainingFunctions();
 			
@@ -71,9 +70,6 @@ public class MoveSegmentAnalysis extends AbstractHandler {
 				
 			} 
 			
-			
-		
-			
 			queries.Query10(segment).leaves().mark("Segment refers to this variable outside of the segment, moving the segment may accidentally rebind references to the wrong variable");
 			
 			queries.Query10MS(segment, containedMethod, W.universe().types("before")).mark("The segment uses this variable, but it also exists as a field in the destination type");
@@ -82,24 +78,10 @@ public class MoveSegmentAnalysis extends AbstractHandler {
 						
 			queries.Query12(segment).mark("This return will be removed from the containing method, changing control flow and behavior" );
 			
-			
-		
-			
-			
 		}
-	
-		
-						
 		
 		return null;
-		
-		
-		
-		
-		
-		
 	}
-	
 
 }
 

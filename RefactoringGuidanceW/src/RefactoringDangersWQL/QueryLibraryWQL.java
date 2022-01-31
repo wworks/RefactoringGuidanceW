@@ -191,6 +191,8 @@ public W Query8(W method) {
 public W Query9(W method) {
 	method = method.selectAbstractMethods();
 			
+	
+	
 	return	method
 		.parent()
 		.getSubtypesT()
@@ -201,6 +203,8 @@ public W Query9(W method) {
 				
 		);
 
+	
+	
 }
 
 /**
@@ -222,7 +226,9 @@ return	segment
 	
 }
 
-//opzet voor analyse of variablen gebonden raken na verplaatsen
+/**
+ * Opzet voor analyse of variablen gebonden raken na verplaatsen
+ */
 public W Query10MS(W segment, W containingMethod, W classDestination) {
 	//only dataflow nodes, not edges
 	W dataflowInSegment = segment.induce(W.universe().edges(XCSG.DataFlow_Edge));
